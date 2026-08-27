@@ -1,0 +1,6 @@
+{
+  "name": "Dynamic Roster Management System",
+  "description": "Dynamic Staffing & Roster Engine for Shija Hospitals & Research Institute",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 580" width="100%" height="100%">
+  <defs>
+    <!-- Soft shadow for ribbon depth -->
+    <filter id="ribbonShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <g id="shija-full-logo" transform="translate(0, 10)">
+    <!-- 16-Point Starburst / Sun Medallion -->
+    <path d="
+      M 250 25 
+      L 278 68 L 328 45 L 342 97 L 392 90 L 390 144 L 434 154 L 414 206 L 448 232 L 412 268 L 434 308 L 388 328 L 392 380 L 342 384 L 326 432 L 278 418 L 250 458 
+      L 222 418 L 174 432 L 158 384 L 108 380 L 112 328 L 66 308 L 88 268 L 52 232 L 86 206 L 66 154 L 110 144 L 108 90 L 158 97 L 172 45 L 222 68 Z" 
+      fill="#6C1518" 
+    />
+
+    <!-- Inner White Circle -->
+    <circle cx="250" cy="240" r="148" fill="#FFFFFF" />
+
+    <!-- Central Shija Flame / Wing Motif (Maroon) -->
+    <!-- Stylized Central Flame -->
+    <path d="
+      M 248 108 
+      C 255 125, 276 155, 276 195 
+      C 276 235, 252 245, 245 265 
+      C 238 285, 250 300, 272 300 
+      C 230 306, 210 275, 216 248 
+      C 222 220, 248 200, 246 168 
+      C 245 146, 235 125, 248 108 Z" 
+      fill="#6C1518" 
+    />
+
+    <!-- Wings / Hands Base -->
+    <!-- Left Wing -->
+    <path d="
+      M 162 250 
+      C 165 295, 215 320, 250 328 
+      C 225 348, 208 375, 208 382 
+      C 218 368, 242 338, 250 338 
+      C 245 330, 215 315, 205 285 
+      C 198 265, 178 252, 162 250 Z" 
+      fill="#6C1518" 
+    />
+    <!-- Right Wing -->
+    <path d="
+      M 338 250 
+      C 335 295, 285 320, 250 328 
+      C 275 348, 292 375, 292 382 
+      C 282 368, 258 338, 250 338 
+      C 255 330, 285 315, 295 285 
+      C 302 265, 322 252, 338 250 Z" 
+      fill="#6C1518" 
+    />
+
+    <!-- Bottom Ribbon Fold Backing -->
+    <path d="M 68 440 L 118 410 L 118 472 L 68 502 Z" fill="#480D10" />
+    <path d="M 432 440 L 382 410 L 382 472 L 432 502 Z" fill="#480D10" />
+
+    <!-- Ribbon Tails (Left & Right with swallowtail notches) -->
+    <path d="M 62 400 L 120 420 L 120 475 L 62 455 L 85 428 Z" fill="#6C1518" />
+    <path d="M 438 400 L 380 420 L 380 475 L 438 455 L 415 428 Z" fill="#6C1518" />
+
+    <!-- Main Front Curved Ribbon Banner -->
+    <path d="
+      M 100 420 
+      C 170 380, 330 380, 400 420 
+      C 395 480, 375 510, 250 510 
+      C 125 510, 105 480, 100 420 Z" 
+      fill="#6C1518" 
+      stroke="#480D10"
+      stroke-width="2"
+    />
+
+    <!-- Banner Inner Trim Lines -->
+    <path d="
+      M 112 422 
+      C 175 390, 325 390, 388 422" 
+      fill="none" 
+      stroke="#882025" 
+      stroke-width="1.5" 
+    />
+    <path d="
+      M 114 480 
+      C 175 500, 325 500, 386 480" 
+      fill="none" 
+      stroke="#480D10" 
+      stroke-width="1.5" 
+    />
+
+    <!-- Banner Text: SHRI -->
+    <text 
+      x="250" 
+      y="442" 
+      text-anchor="middle" 
+      font-family="'Times New Roman', Times, serif" 
+      font-weight="bold" 
+      font-size="44" 
+      letter-spacing="5" 
+      fill="#FFFFFF"
+    >
+      SHRI
+    </text>
+
+    <!-- Banner Text: Estd 1985 -->
+    <text 
+      x="250" 
+      y="484" 
+      text-anchor="middle" 
+      font-family="'Times New Roman', Times, serif" 
+      font-weight="bold" 
+      font-style="italic" 
+      font-size="34" 
+      letter-spacing="3" 
+      fill="#FFFFFF"
+    >
+      Estd 1985
+    </text>
+
+    <!-- Green Motto / Tagline: Humane Technology -->
+    <text 
+      x="250" 
+      y="556" 
+      text-anchor="middle" 
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+      font-weight="900" 
+      font-size="38" 
+      letter-spacing="-0.5" 
+      fill="#065F28"
+    >
+      Humane Technology
+    </text>
+  </g>
+</svg>
