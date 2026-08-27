@@ -135,7 +135,7 @@ interface RosterContextType {
 
 const RosterContext = createContext<RosterContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'SHIJA_ROSTER_STATE_V1';
+const STORAGE_KEY = 'SHIJA_ROSTER_STATE_V2';
 
 export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [employees, setEmployees] = useState<Employee[]>(() => {

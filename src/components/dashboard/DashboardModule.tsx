@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRoster } from '../../context/RosterContext';
 import {
   Users,
@@ -16,6 +16,7 @@ import {
   Layers,
   ChevronRight,
   ShieldAlert,
+  Filter,
 } from 'lucide-react';
 
 export const DashboardModule: React.FC = () => {
@@ -32,6 +33,8 @@ export const DashboardModule: React.FC = () => {
     setSelectedDepartmentId,
   } = useRoster();
 
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'Surplus' | 'Adequate' | 'Warning' | 'Shortage'>('ALL');
+
   // Metrics computation for selectedDate
   const totalEmployees = employees.length;
   const leavesToday = leaves.filter(
@@ -46,6 +49,22 @@ export const DashboardModule: React.FC = () => {
   const totalAllocated = departmentSummaries.reduce((acc, s) => acc + s.allocatedStaff, 0);
   const totalShortage = departmentSummaries.reduce((acc, s) => acc + s.shortage, 0);
   const totalSurplus = departmentSummaries.reduce((acc, s) => acc + s.surplus, 0);
+
+  // Filtered summaries for presentation
+  const filteredSummaries = departmentSummaries.filter((s) => {
+    if (statusFilter === 'ALL') return true;
+    if (statusFilter === 'Shortage') return s.status === 'Shortage' || s.status === 'Critical' || s.shortage > 0;
+    if (statusFilter === 'Surplus') return s.status === 'Surplus' || s.surplus > 0;
+    if (statusFilter === 'Warning') return s.status === 'Warning';
+    if (statusFilter === 'Adequate') return s.status === 'Adequate' && s.surplus === 0 && s.shortage === 0;
+    return true;
+  });
+
+  // Count per category
+  const surplusCount = departmentSummaries.filter((s) => s.status === 'Surplus' || s.surplus > 0).length;
+  const adequateCount = departmentSummaries.filter((s) => s.status === 'Adequate' && s.surplus === 0 && s.shortage === 0).length;
+  const warningCount = departmentSummaries.filter((s) => s.status === 'Warning').length;
+  const shortageCount = departmentSummaries.filter((s) => s.status === 'Shortage' || s.status === 'Critical' || s.shortage > 0).length;
 
   // Overtime risk: employees currently rostered near or over max weekly hours
   const overtimeCount = employees.filter(
@@ -158,9 +177,15 @@ export const DashboardModule: React.FC = () => {
         </div>
 
         {/* Staff Shortage */}
-        <div className={`border rounded-lg p-3 shadow-2xs ${
-          totalShortage > 0 ? 'bg-red-50/70 border-red-200' : 'bg-white border-slate-200'
-        }`}>
+        <div 
+          onClick={() => setStatusFilter(statusFilter === 'Shortage' ? 'ALL' : 'Shortage')}
+          className={`border rounded-lg p-3 shadow-2xs cursor-pointer transition-all ${
+            statusFilter === 'Shortage' ? 'ring-2 ring-red-500' : ''
+          } ${
+            totalShortage > 0 ? 'bg-red-50/70 border-red-200 hover:bg-red-100/70' : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+          title="Filter table by Shortage departments"
+        >
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Shortage</span>
             <AlertTriangle className={`w-4 h-4 ${totalShortage > 0 ? 'text-red-600' : 'text-slate-400'}`} />
@@ -169,18 +194,26 @@ export const DashboardModule: React.FC = () => {
             {totalShortage}
           </div>
           <div className={`text-[10px] font-medium ${totalShortage > 0 ? 'text-red-600' : 'text-slate-500'}`}>
-            {totalShortage > 0 ? 'Action required' : 'No shortages'}
+            {totalShortage > 0 ? `${shortageCount} depts short (Click to filter)` : 'No shortages'}
           </div>
         </div>
 
         {/* Staff Surplus */}
-        <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
+        <div 
+          onClick={() => setStatusFilter(statusFilter === 'Surplus' ? 'ALL' : 'Surplus')}
+          className={`border rounded-lg p-3 shadow-2xs cursor-pointer transition-all ${
+            statusFilter === 'Surplus' ? 'ring-2 ring-blue-500' : ''
+          } ${
+            totalSurplus > 0 ? 'bg-blue-50/70 border-blue-200 hover:bg-blue-100/70' : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+          title="Filter table by Surplus departments"
+        >
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider">Surplus</span>
-            <Layers className="w-4 h-4 text-slate-400" />
+            <Layers className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-xl font-bold text-slate-700">{totalSurplus}</div>
-          <div className="text-[10px] text-slate-500">Float buffer</div>
+          <div className="text-xl font-bold text-blue-900">{totalSurplus}</div>
+          <div className="text-[10px] text-blue-700 font-medium">{surplusCount} depts surplus (Click to filter)</div>
         </div>
 
         {/* Overtime Risk */}
@@ -209,112 +242,157 @@ export const DashboardModule: React.FC = () => {
               Comparison of active demand requirement, available staff pool, allocated roster, and unmet gaps.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:space-x-3 text-xs">
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
-              <span className="text-slate-600 text-[11px]">Surplus</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-              <span className="text-slate-600 text-[11px]">Adequate</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-              <span className="text-slate-600 text-[11px]">Warning</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-              <span className="text-slate-600 text-[11px]">Shortage</span>
-            </span>
+          {/* Interactive Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <button
+              onClick={() => setStatusFilter('ALL')}
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === 'ALL'
+                  ? 'bg-slate-800 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              All ({departmentSummaries.length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('Surplus')}
+              className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === 'Surplus'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${statusFilter === 'Surplus' ? 'bg-white' : 'bg-blue-500'} inline-block`} />
+              <span>Surplus ({surplusCount})</span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('Adequate')}
+              className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === 'Adequate'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${statusFilter === 'Adequate' ? 'bg-white' : 'bg-emerald-500'} inline-block`} />
+              <span>Adequate ({adequateCount})</span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('Warning')}
+              className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === 'Warning'
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${statusFilter === 'Warning' ? 'bg-white' : 'bg-amber-500'} inline-block`} />
+              <span>Warning ({warningCount})</span>
+            </button>
+            <button
+              onClick={() => setStatusFilter('Shortage')}
+              className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === 'Shortage'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-red-50 text-red-800 hover:bg-red-100 border border-red-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${statusFilter === 'Shortage' ? 'bg-white' : 'bg-red-500'} inline-block`} />
+              <span>Shortage ({shortageCount})</span>
+            </button>
           </div>
         </div>
 
         {/* Mobile View: Card List (< md) */}
         <div className="block md:hidden divide-y divide-slate-100">
-          {departmentSummaries.map((summary) => {
-            const dept = departments.find((d) => d.id === summary.departmentId);
-            const isShortage = summary.shortage > 0;
-            const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
-            const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
+          {filteredSummaries.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs">
+              No departments matching the selected filter.
+            </div>
+          ) : (
+            filteredSummaries.map((summary) => {
+              const dept = departments.find((d) => d.id === summary.departmentId);
+              const isShortage = summary.shortage > 0;
+              const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
+              const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
 
-            return (
-              <div key={summary.departmentId} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="font-bold text-slate-900 text-sm">{dept?.name}</div>
-                    <div className="text-[11px] text-slate-500 font-mono">
-                      {dept?.code} &bull; {dept?.type}
+              return (
+                <div key={summary.departmentId} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm">{dept?.name}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        {dept?.code} &bull; {dept?.type}
+                      </div>
+                    </div>
+
+                    {summary.status === 'Critical' ? (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                        <AlertTriangle className="w-3 h-3 text-red-600" />
+                        <span>Critical</span>
+                      </span>
+                    ) : summary.status === 'Shortage' || isShortage ? (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        <AlertTriangle className="w-3 h-3 text-amber-600" />
+                        <span>Shortage</span>
+                      </span>
+                    ) : summary.status === 'Surplus' || isSurplus ? (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                        <Users className="w-3 h-3 text-blue-600" />
+                        <span>Surplus</span>
+                      </span>
+                    ) : isTight || summary.status === 'Warning' ? (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                        <span>Warning</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>Adequate</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Metric info */}
+                  <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded-md border border-slate-100 flex items-center justify-between">
+                    <span>Demand: <strong className="text-slate-800">{summary.demandValue} {summary.demandMetric}</strong></span>
+                    <span className="text-[11px] text-slate-500 font-mono">Norm 1:{summary.normRatio}</span>
+                  </div>
+
+                  {/* Staff stats counter grid */}
+                  <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                    <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                      <span className="text-[10px] text-slate-400 block font-medium">Req</span>
+                      <span className="font-bold text-slate-800 text-sm">{summary.requiredStaff}</span>
+                    </div>
+                    <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                      <span className="text-[10px] text-slate-400 block font-medium">Avail</span>
+                      <span className="font-semibold text-slate-700 text-sm">{summary.availableStaff}</span>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-md p-1.5">
+                      <span className="text-[10px] text-emerald-700 block font-medium">Rostered</span>
+                      <span className="font-bold text-emerald-800 text-sm">{summary.allocatedStaff}</span>
+                    </div>
+                    <div className={`p-1.5 rounded-md border ${
+                      isShortage ? 'bg-red-50 border-red-200 text-red-800' : isSurplus ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-700'
+                    }`}>
+                      <span className="text-[10px] block font-medium">Gap</span>
+                      <span className="font-bold text-sm">
+                        {isShortage ? `-${summary.shortage}` : isSurplus ? `+${summary.surplus}` : '0'}
+                      </span>
                     </div>
                   </div>
 
-                  {summary.status === 'Critical' ? (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
-                      <AlertTriangle className="w-3 h-3 text-red-600" />
-                      <span>Critical</span>
-                    </span>
-                  ) : summary.status === 'Shortage' || isShortage ? (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                      <AlertTriangle className="w-3 h-3 text-amber-600" />
-                      <span>Shortage</span>
-                    </span>
-                  ) : summary.status === 'Surplus' || isSurplus ? (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                      <Users className="w-3 h-3 text-blue-600" />
-                      <span>Surplus</span>
-                    </span>
-                  ) : isTight || summary.status === 'Warning' ? (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                      <span>Warning</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Adequate</span>
-                    </span>
-                  )}
+                  {/* Manage Roster Action */}
+                  <button
+                    onClick={() => handleDrilldown(summary.departmentId)}
+                    className="w-full flex items-center justify-center space-x-1.5 py-2 px-3 text-xs font-bold text-[#6C150B] bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors"
+                  >
+                    <span>Manage {dept?.name} Roster</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-
-                {/* Metric info */}
-                <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded-md border border-slate-100 flex items-center justify-between">
-                  <span>Demand: <strong className="text-slate-800">{summary.demandValue} {summary.demandMetric}</strong></span>
-                  <span className="text-[11px] text-slate-500 font-mono">Norm 1:{summary.normRatio}</span>
-                </div>
-
-                {/* Staff stats counter grid */}
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
-                    <span className="text-[10px] text-slate-400 block font-medium">Req</span>
-                    <span className="font-bold text-slate-800 text-sm">{summary.requiredStaff}</span>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
-                    <span className="text-[10px] text-slate-400 block font-medium">Avail</span>
-                    <span className="font-semibold text-slate-700 text-sm">{summary.availableStaff}</span>
-                  </div>
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-md p-1.5">
-                    <span className="text-[10px] text-emerald-700 block font-medium">Rostered</span>
-                    <span className="font-bold text-emerald-800 text-sm">{summary.allocatedStaff}</span>
-                  </div>
-                  <div className={`p-1.5 rounded-md border ${
-                    isShortage ? 'bg-red-50 border-red-200 text-red-800' : isSurplus ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-700'
-                  }`}>
-                    <span className="text-[10px] block font-medium">Gap</span>
-                    <span className="font-bold text-sm">
-                      {isShortage ? `-${summary.shortage}` : isSurplus ? `+${summary.surplus}` : '0'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Manage Roster Action */}
-                <button
-                  onClick={() => handleDrilldown(summary.departmentId)}
-                  className="w-full flex items-center justify-center space-x-1.5 py-2 px-3 text-xs font-bold text-[#6C150B] bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors"
-                >
-                  <span>Manage {dept?.name} Roster</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         {/* Desktop View: Table (md:) */}
@@ -333,99 +411,107 @@ export const DashboardModule: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {departmentSummaries.map((summary) => {
-                const dept = departments.find((d) => d.id === summary.departmentId);
-                const isShortage = summary.shortage > 0;
-                const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
-                const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
+              {filteredSummaries.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-slate-500 text-xs">
+                    No departments matching the selected status filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredSummaries.map((summary) => {
+                  const dept = departments.find((d) => d.id === summary.departmentId);
+                  const isShortage = summary.shortage > 0;
+                  const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
+                  const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
 
-                return (
-                  <tr key={summary.departmentId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900">{dept?.name}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">
-                        {dept?.code} &bull; {dept?.type}
-                      </div>
-                    </td>
+                  return (
+                    <tr key={summary.departmentId} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900">{dept?.name}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">
+                          {dept?.code} &bull; {dept?.type}
+                        </div>
+                      </td>
 
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-slate-800">
-                        {summary.demandValue} {summary.demandMetric}
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        Norm Ratio 1:{summary.normRatio}
-                      </div>
-                    </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-slate-800">
+                          {summary.demandValue} {summary.demandMetric}
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Norm Ratio 1:{summary.normRatio}
+                        </div>
+                      </td>
 
-                    <td className="py-3 px-4 text-center font-bold text-slate-800 text-sm">
-                      {summary.requiredStaff}
-                    </td>
+                      <td className="py-3 px-4 text-center font-bold text-slate-800 text-sm">
+                        {summary.requiredStaff}
+                      </td>
 
-                    <td className="py-3 px-4 text-center font-semibold text-slate-700 text-sm">
-                      {summary.availableStaff}
-                    </td>
+                      <td className="py-3 px-4 text-center font-semibold text-slate-700 text-sm">
+                        {summary.availableStaff}
+                      </td>
 
-                    <td className="py-3 px-4 text-center font-bold text-emerald-700 text-sm">
-                      {summary.allocatedStaff}
-                    </td>
+                      <td className="py-3 px-4 text-center font-bold text-emerald-700 text-sm">
+                        {summary.allocatedStaff}
+                      </td>
 
-                    <td className="py-3 px-4 text-center">
-                      {isShortage ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
-                          -{summary.shortage} Short
-                        </span>
-                      ) : isSurplus ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                          +{summary.surplus} Surplus
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          0 (Exact)
-                        </span>
-                      )}
-                    </td>
+                      <td className="py-3 px-4 text-center">
+                        {isShortage ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+                            -{summary.shortage} Short
+                          </span>
+                        ) : isSurplus ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            +{summary.surplus} Surplus
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            0 (Exact)
+                          </span>
+                        )}
+                      </td>
 
-                    <td className="py-3 px-4 text-center">
-                      {summary.status === 'Critical' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">
-                          <AlertTriangle className="w-3 h-3 text-red-600" />
-                          <span>Critical</span>
-                        </span>
-                      ) : summary.status === 'Shortage' || isShortage ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                          <AlertTriangle className="w-3 h-3 text-amber-600" />
-                          <span>Shortage</span>
-                        </span>
-                      ) : summary.status === 'Surplus' || isSurplus ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                          <Users className="w-3 h-3 text-blue-600" />
-                          <span>Surplus</span>
-                        </span>
-                      ) : isTight || summary.status === 'Warning' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                          <span>Warning (Tight)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          <span>Adequate</span>
-                        </span>
-                      )}
-                    </td>
+                      <td className="py-3 px-4 text-center">
+                        {summary.status === 'Critical' ? (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">
+                            <AlertTriangle className="w-3 h-3 text-red-600" />
+                            <span>Critical</span>
+                          </span>
+                        ) : summary.status === 'Shortage' || isShortage ? (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            <AlertTriangle className="w-3 h-3 text-amber-600" />
+                            <span>Shortage</span>
+                          </span>
+                        ) : summary.status === 'Surplus' || isSurplus ? (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            <Users className="w-3 h-3 text-blue-600" />
+                            <span>Surplus</span>
+                          </span>
+                        ) : isTight || summary.status === 'Warning' ? (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            <span>Warning (Tight)</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>Adequate</span>
+                          </span>
+                        )}
+                      </td>
 
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => handleDrilldown(summary.departmentId)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold text-[#6C150B] hover:bg-red-50 rounded-md border border-red-200 transition-colors"
-                        title="Open Dynamic Roster for this department"
-                      >
-                        <span>Manage Roster</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => handleDrilldown(summary.departmentId)}
+                          className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold text-[#6C150B] hover:bg-red-50 rounded-md border border-red-200 transition-colors"
+                          title="Open Dynamic Roster for this department"
+                        >
+                          <span>Manage Roster</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
