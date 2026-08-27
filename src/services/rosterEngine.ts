@@ -390,9 +390,15 @@ export function generateDynamicRosterForShift(
   }
 
   let status: DepartmentRosterSummary['status'] = 'Adequate';
-  if (shortage >= 3) status = 'Critical';
-  else if (shortage > 0) status = 'Shortage';
-  else if (eligibleCandidates.length === roundedRequirement) status = 'Warning'; // Tight capacity
+  if (shortage >= 3) {
+    status = 'Critical';
+  } else if (shortage > 0) {
+    status = 'Shortage';
+  } else if (surplus > 0 || eligibleCandidates.length > roundedRequirement) {
+    status = 'Surplus';
+  } else if (eligibleCandidates.length === roundedRequirement) {
+    status = 'Adequate';
+  }
 
   const summary: DepartmentRosterSummary = {
     date,

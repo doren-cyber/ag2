@@ -211,6 +211,10 @@ export const DashboardModule: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3 text-xs">
             <span className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
+              <span className="text-slate-600">Surplus</span>
+            </span>
+            <span className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
               <span className="text-slate-600">Adequate</span>
             </span>
@@ -243,6 +247,7 @@ export const DashboardModule: React.FC = () => {
               {departmentSummaries.map((summary) => {
                 const dept = departments.find((d) => d.id === summary.departmentId);
                 const isShortage = summary.shortage > 0;
+                const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
                 const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
 
                 return (
@@ -278,27 +283,41 @@ export const DashboardModule: React.FC = () => {
                     <td className="py-3 px-4 text-center">
                       {isShortage ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
-                          -{summary.shortage}
+                          -{summary.shortage} Short
+                        </span>
+                      ) : isSurplus ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                          +{summary.surplus} Surplus
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
-                          0
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          0 (Exact)
                         </span>
                       )}
                     </td>
 
                     <td className="py-3 px-4 text-center">
-                      {isShortage ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800">
+                      {summary.status === 'Critical' ? (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">
                           <AlertTriangle className="w-3 h-3 text-red-600" />
+                          <span>Critical</span>
+                        </span>
+                      ) : summary.status === 'Shortage' || isShortage ? (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          <AlertTriangle className="w-3 h-3 text-amber-600" />
                           <span>Shortage</span>
                         </span>
-                      ) : isTight ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
+                      ) : summary.status === 'Surplus' || isSurplus ? (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                          <Users className="w-3 h-3 text-blue-600" />
+                          <span>Surplus</span>
+                        </span>
+                      ) : isTight || summary.status === 'Warning' ? (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                           <span>Warning (Tight)</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                           <span>Adequate</span>
                         </span>

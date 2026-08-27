@@ -401,20 +401,54 @@ export const DynamicRosterModule: React.FC = () => {
 
           {/* Step 6 */}
           <div className={`p-2 rounded-md border ${
-            summary.shortage > 0 ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'
+            summary.shortage > 0 
+              ? 'bg-red-50 border-red-200' 
+              : summary.surplus > 0
+              ? 'bg-blue-50 border-blue-200'
+              : 'bg-slate-50 border-slate-200'
           }`}>
-            <div className={`text-[10px] font-semibold ${summary.shortage > 0 ? 'text-red-600' : 'text-slate-400'}`}>
-              6. Shortage Gap
+            <div className={`text-[10px] font-semibold ${
+              summary.shortage > 0 
+                ? 'text-red-600' 
+                : summary.surplus > 0
+                ? 'text-blue-600'
+                : 'text-slate-400'
+            }`}>
+              6. Staff Balance
             </div>
-            <div className={`font-black text-sm ${summary.shortage > 0 ? 'text-red-700' : 'text-slate-700'}`}>
-              {summary.shortage > 0 ? `-${summary.shortage}` : '0 (Met)'}
+            <div className={`font-black text-sm ${
+              summary.shortage > 0 
+                ? 'text-red-700' 
+                : summary.surplus > 0
+                ? 'text-blue-700'
+                : 'text-slate-700'
+            }`}>
+              {summary.shortage > 0 
+                ? `-${summary.shortage} (Short)` 
+                : summary.surplus > 0 
+                ? `+${summary.surplus} (Surplus)` 
+                : '0 (Balanced)'}
             </div>
           </div>
 
           {/* Step 7 */}
-          <div className="p-2 rounded-md bg-slate-50 border border-slate-200">
+          <div className={`p-2 rounded-md border ${
+            summary.status === 'Critical' || summary.status === 'Shortage'
+              ? 'bg-red-50 border-red-200'
+              : summary.status === 'Surplus'
+              ? 'bg-blue-50 border-blue-200'
+              : 'bg-slate-50 border-slate-200'
+          }`}>
             <div className="text-[10px] text-slate-400 font-semibold">7. Shift Status</div>
-            <div className="font-bold text-slate-800">{summary.status}</div>
+            <div className={`font-bold ${
+              summary.status === 'Critical' || summary.status === 'Shortage'
+                ? 'text-red-700'
+                : summary.status === 'Surplus'
+                ? 'text-blue-700'
+                : 'text-slate-800'
+            }`}>
+              {summary.status}
+            </div>
           </div>
         </div>
       </div>

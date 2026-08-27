@@ -554,9 +554,15 @@ export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const surplus = Math.max(0, availableStaff - roundedRequirement);
 
     let status: DepartmentRosterSummary['status'] = 'Adequate';
-    if (shortage >= 3) status = 'Critical';
-    else if (shortage > 0) status = 'Shortage';
-    else if (availableStaff === roundedRequirement) status = 'Warning';
+    if (shortage >= 3) {
+      status = 'Critical';
+    } else if (shortage > 0) {
+      status = 'Shortage';
+    } else if (surplus > 0 || availableStaff > roundedRequirement) {
+      status = 'Surplus';
+    } else if (availableStaff === roundedRequirement) {
+      status = 'Adequate';
+    }
 
     return {
       date,

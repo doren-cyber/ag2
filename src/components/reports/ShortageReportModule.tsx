@@ -281,11 +281,13 @@ export const ShortageReportModule: React.FC = () => {
                   </td>
                   <td className="py-3 px-4 text-right">
                     <span
-                      className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                      className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
                         s.status === 'Critical'
                           ? 'bg-red-50 text-red-800 border-red-200'
                           : s.status === 'Shortage'
                           ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : s.status === 'Surplus'
+                          ? 'bg-blue-50 text-blue-800 border-blue-200'
                           : s.status === 'Adequate'
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-slate-50 text-slate-800 border-slate-200'

@@ -172,7 +172,7 @@ export interface DepartmentRosterSummary {
   allocatedStaff: number;
   shortage: number; // positive = shortage
   surplus: number;  // positive = excess
-  status: 'Adequate' | 'Warning' | 'Shortage' | 'Critical';
+  status: 'Surplus' | 'Adequate' | 'Warning' | 'Shortage' | 'Critical';
   shortageReasons: ShortageReasonBreakdown[];
   mitigationSuggestions: string[];
 }
