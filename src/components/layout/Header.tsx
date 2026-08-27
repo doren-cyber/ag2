@@ -1,13 +1,9 @@
 import React from 'react';
 import { useRoster } from '../../context/RosterContext';
-import { UserRole } from '../../types/roster';
 import { ShijaLogo } from '../common/ShijaLogo';
 import { 
-  Building2, 
   Calendar, 
   RotateCcw, 
-  ShieldCheck, 
-  UserCheck, 
   Printer, 
   Info,
   AlertCircle,
@@ -17,8 +13,6 @@ import {
 
 export const Header: React.FC = () => {
   const {
-    currentRole,
-    setCurrentRole,
     selectedDate,
     setSelectedDate,
     resetToDefaults,
@@ -27,14 +21,6 @@ export const Header: React.FC = () => {
     setActiveModule,
     requestConfirm,
   } = useRoster();
-
-  const roles: { value: UserRole; label: string; badge: string }[] = [
-    { value: 'ROSTER_MANAGER', label: 'Roster Manager', badge: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-    { value: 'DEPARTMENT_HEAD', label: 'Department Head', badge: 'bg-amber-100 text-amber-800 border-amber-300' },
-    { value: 'HR', label: 'HR Manager', badge: 'bg-blue-100 text-blue-800 border-blue-300' },
-    { value: 'ADMIN', label: 'Hospital Admin', badge: 'bg-purple-100 text-purple-800 border-purple-300' },
-    { value: 'VIEW_ONLY', label: 'View Only (Auditor)', badge: 'bg-slate-100 text-slate-700 border-slate-300' },
-  ];
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
@@ -64,7 +50,7 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Action Controls: Date Selector, Role Switcher, Reset, Quick Print */}
+          {/* Right Action Controls: Date Selector, Reset, Quick Print */}
           <div className="flex items-center space-x-3">
             {/* Global Date Selector */}
             <div className="flex items-center bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-slate-700 font-medium space-x-2">
@@ -77,24 +63,6 @@ export const Header: React.FC = () => {
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="bg-transparent text-slate-900 font-semibold focus:outline-hidden cursor-pointer"
               />
-            </div>
-
-            {/* Role Switcher */}
-            <div className="flex items-center bg-slate-50 border border-slate-300 rounded-md px-2 py-1 space-x-1.5 text-xs">
-              <ShieldCheck className="w-4 h-4 text-[#6C150B]" />
-              <label htmlFor="role-select" className="text-slate-500 hidden md:inline">Role:</label>
-              <select
-                id="role-select"
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="bg-transparent text-slate-900 font-semibold focus:outline-hidden cursor-pointer text-xs pr-1"
-              >
-                {roles.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Quick Print / Export Button */}
