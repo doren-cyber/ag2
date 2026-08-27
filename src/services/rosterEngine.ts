@@ -397,7 +397,11 @@ export function generateDynamicRosterForShift(
   } else if (surplus > 0 || eligibleCandidates.length > roundedRequirement) {
     status = 'Surplus';
   } else if (eligibleCandidates.length === roundedRequirement) {
-    status = 'Adequate';
+    if (department.id === 'DEP-RAD' || department.id === 'DEP-OPD') {
+      status = 'Warning';
+    } else {
+      status = 'Adequate';
+    }
   }
 
   const summary: DepartmentRosterSummary = {

@@ -288,6 +288,8 @@ export const ShortageReportModule: React.FC = () => {
                           ? 'bg-amber-50 text-amber-800 border-amber-200'
                           : s.status === 'Surplus'
                           ? 'bg-blue-50 text-blue-800 border-blue-200'
+                          : s.status === 'Warning'
+                          ? 'bg-amber-50 text-amber-900 border-amber-300'
                           : s.status === 'Adequate'
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-slate-50 text-slate-800 border-slate-200'

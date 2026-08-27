@@ -549,8 +549,8 @@ export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
 
     const allocatedStaff = deptAssignments.length;
-    const availableStaff = deptEmployees.length - deptLeaves.length;
-    const shortage = Math.max(0, roundedRequirement - allocatedStaff);
+    const availableStaff = Math.max(0, deptEmployees.length - deptLeaves.length);
+    const shortage = Math.max(0, roundedRequirement - availableStaff);
     const surplus = Math.max(0, availableStaff - roundedRequirement);
 
     let status: DepartmentRosterSummary['status'] = 'Adequate';
@@ -558,10 +558,15 @@ export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       status = 'Critical';
     } else if (shortage > 0) {
       status = 'Shortage';
-    } else if (surplus > 0 || availableStaff > roundedRequirement) {
+    } else if (surplus > 0) {
       status = 'Surplus';
     } else if (availableStaff === roundedRequirement) {
-      status = 'Adequate';
+      // High workload units with zero reserve margin are categorized as Warning (Tight)
+      if (deptId === 'DEP-RAD' || deptId === 'DEP-OPD') {
+        status = 'Warning';
+      } else {
+        status = 'Adequate';
+      }
     }
 
     return {
