@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-200 shrink-0 min-h-[calc(100vh-4rem)] flex flex-col justify-between border-r border-slate-800">
+    <aside className="hidden md:flex w-64 bg-slate-900 text-slate-200 shrink-0 min-h-[calc(100vh-4rem)] flex-col justify-between border-r border-slate-800">
       <div className="py-4 px-3 space-y-6">
         {navItems.map((section, idx) => (
           <div key={idx} className="space-y-1">

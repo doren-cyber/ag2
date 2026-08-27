@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { RosterProvider, useRoster } from './context/RosterContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
+import { MobileDrawer } from './components/layout/MobileDrawer';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DashboardModule } from './components/dashboard/DashboardModule';
 import { EmployeeMasterModule } from './components/employees/EmployeeMasterModule';
 import { DepartmentMasterModule } from './components/departments/DepartmentMasterModule';
@@ -19,7 +21,7 @@ const MainContent: React.FC = () => {
   const { activeModule, confirmDialog, closeConfirm } = useRoster();
 
   return (
-    <main className="flex-1 min-w-0 bg-slate-100 p-4 sm:p-6 lg:p-8 overflow-y-auto min-h-[calc(100vh-4rem)]">
+    <main className="flex-1 min-w-0 bg-slate-100 p-3 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-y-auto min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto">
         {activeModule === 'dashboard' && <DashboardModule />}
         {activeModule === 'employees' && <EmployeeMasterModule />}
@@ -51,15 +53,29 @@ const MainContent: React.FC = () => {
 };
 
 export default function App() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <RosterProvider>
       <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900 selection:bg-[#6C150B] selection:text-white">
-        <Header />
+        <Header onOpenMenu={() => setIsMobileMenuOpen(true)} />
         <div className="flex-1 flex flex-col md:flex-row">
           <Sidebar />
           <MainContent />
         </div>
+        
+        {/* Mobile Navigation Drawer */}
+        <MobileDrawer 
+          isOpen={isMobileMenuOpen} 
+          onClose={() => setIsMobileMenuOpen(false)} 
+        />
+
+        {/* Mobile Sticky Bottom Bar */}
+        <MobileBottomNav 
+          onOpenMenu={() => setIsMobileMenuOpen(true)} 
+        />
       </div>
     </RosterProvider>
   );
 }
+

@@ -198,9 +198,9 @@ export const DashboardModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Department-Level Operational Status Table */}
+      {/* Department-Level Operational Status: Mobile Cards + Desktop Table */}
       <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xs">
-        <div className="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="px-4 sm:px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
               Department-Level Staffing &amp; Roster Status
@@ -209,27 +209,116 @@ export const DashboardModule: React.FC = () => {
               Comparison of active demand requirement, available staff pool, allocated roster, and unmet gaps.
             </p>
           </div>
-          <div className="flex items-center space-x-3 text-xs">
-            <span className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
-              <span className="text-slate-600">Surplus</span>
+          <div className="flex flex-wrap items-center gap-2 sm:space-x-3 text-xs">
+            <span className="flex items-center space-x-1">
+              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+              <span className="text-slate-600 text-[11px]">Surplus</span>
             </span>
-            <span className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-              <span className="text-slate-600">Adequate</span>
+            <span className="flex items-center space-x-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+              <span className="text-slate-600 text-[11px]">Adequate</span>
             </span>
-            <span className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
-              <span className="text-slate-600">Tight / Warning</span>
+            <span className="flex items-center space-x-1">
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+              <span className="text-slate-600 text-[11px]">Warning</span>
             </span>
-            <span className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-              <span className="text-slate-600">Shortage</span>
+            <span className="flex items-center space-x-1">
+              <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+              <span className="text-slate-600 text-[11px]">Shortage</span>
             </span>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile View: Card List (< md) */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {departmentSummaries.map((summary) => {
+            const dept = departments.find((d) => d.id === summary.departmentId);
+            const isShortage = summary.shortage > 0;
+            const isSurplus = summary.surplus > 0 || summary.status === 'Surplus';
+            const isTight = summary.availableStaff === summary.requiredStaff && !isShortage;
+
+            return (
+              <div key={summary.departmentId} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 text-sm">{dept?.name}</div>
+                    <div className="text-[11px] text-slate-500 font-mono">
+                      {dept?.code} &bull; {dept?.type}
+                    </div>
+                  </div>
+
+                  {summary.status === 'Critical' ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                      <AlertTriangle className="w-3 h-3 text-red-600" />
+                      <span>Critical</span>
+                    </span>
+                  ) : summary.status === 'Shortage' || isShortage ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      <AlertTriangle className="w-3 h-3 text-amber-600" />
+                      <span>Shortage</span>
+                    </span>
+                  ) : summary.status === 'Surplus' || isSurplus ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                      <Users className="w-3 h-3 text-blue-600" />
+                      <span>Surplus</span>
+                    </span>
+                  ) : isTight || summary.status === 'Warning' ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      <span>Warning</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span>Adequate</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Metric info */}
+                <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded-md border border-slate-100 flex items-center justify-between">
+                  <span>Demand: <strong className="text-slate-800">{summary.demandValue} {summary.demandMetric}</strong></span>
+                  <span className="text-[11px] text-slate-500 font-mono">Norm 1:{summary.normRatio}</span>
+                </div>
+
+                {/* Staff stats counter grid */}
+                <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                  <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                    <span className="text-[10px] text-slate-400 block font-medium">Req</span>
+                    <span className="font-bold text-slate-800 text-sm">{summary.requiredStaff}</span>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                    <span className="text-[10px] text-slate-400 block font-medium">Avail</span>
+                    <span className="font-semibold text-slate-700 text-sm">{summary.availableStaff}</span>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-md p-1.5">
+                    <span className="text-[10px] text-emerald-700 block font-medium">Rostered</span>
+                    <span className="font-bold text-emerald-800 text-sm">{summary.allocatedStaff}</span>
+                  </div>
+                  <div className={`p-1.5 rounded-md border ${
+                    isShortage ? 'bg-red-50 border-red-200 text-red-800' : isSurplus ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}>
+                    <span className="text-[10px] block font-medium">Gap</span>
+                    <span className="font-bold text-sm">
+                      {isShortage ? `-${summary.shortage}` : isSurplus ? `+${summary.surplus}` : '0'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Manage Roster Action */}
+                <button
+                  onClick={() => handleDrilldown(summary.departmentId)}
+                  className="w-full flex items-center justify-center space-x-1.5 py-2 px-3 text-xs font-bold text-[#6C150B] bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors"
+                >
+                  <span>Manage {dept?.name} Roster</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop View: Table (md:) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-xs">
             <thead className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
               <tr>

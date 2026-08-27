@@ -318,7 +318,117 @@ export const EmployeeMasterModule: React.FC = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile View: Employee Cards (< md) */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {filteredEmployees.map((emp) => {
+            const dept = departments.find((d) => d.id === emp.departmentId);
+            const eligibleShiftNames = shifts
+              .filter((s) => emp.eligibleShiftIds?.includes(s.id))
+              .map((s) => s.code);
+
+            return (
+              <div key={emp.id} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 text-sm">{emp.name}</div>
+                    <div className="text-[11px] text-slate-500 font-mono">
+                      {emp.empCode} &bull; {emp.employmentStatus}
+                    </div>
+                  </div>
+                  {emp.active ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                      <CheckCircle className="w-3 h-3 text-emerald-600" />
+                      <span>Active</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
+                      <XCircle className="w-3 h-3 text-slate-400" />
+                      <span>Inactive</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-slate-50 p-2 rounded-md border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block font-medium">Department</span>
+                    <span className="font-semibold text-slate-800 truncate block">{dept?.name || emp.departmentId}</span>
+                  </div>
+                  <div className="bg-slate-50 p-2 rounded-md border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block font-medium">Designation</span>
+                    <span className="font-medium text-slate-700 truncate block">{emp.designation}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
+                  <div>
+                    <span className="text-slate-400 text-[11px]">Shifts: </span>
+                    <span className="font-mono font-bold text-slate-700">{eligibleShiftNames.join(', ') || 'None'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-[11px]">Hours: </span>
+                    <span className="font-bold text-slate-900">{emp.totalHoursAssignedThisWeek || 0}h</span>
+                    <span className="text-slate-400"> / {emp.maxWeeklyHours}h</span>
+                  </div>
+                </div>
+
+                {/* Skills */}
+                {emp.skills && emp.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {emp.skills.slice(0, 3).map((sk) => (
+                      <span
+                        key={sk.skillId}
+                        className={`inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-medium border ${
+                          sk.competencyLevel >= 4
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                        }`}
+                      >
+                        <span>{sk.skillName.split(' ')[0]}</span>
+                        <span className="font-bold text-[9px] px-1 bg-white rounded-xs">
+                          L{sk.competencyLevel}
+                        </span>
+                      </span>
+                    ))}
+                    {emp.skills.length > 3 && (
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        +{emp.skills.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => handleOpenEditModal(emp)}
+                    className="flex-1 flex items-center justify-center space-x-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-semibold text-xs transition-colors"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Edit Profile &amp; Skills</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      requestConfirm({
+                        title: 'Delete Employee Record',
+                        message: `Are you sure you want to remove ${emp.name} (${emp.empCode}) from the employee master directory?`,
+                        confirmLabel: 'Delete Employee',
+                        variant: 'danger',
+                        onConfirm: () => deleteEmployee(emp.id),
+                      });
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-red-600 rounded-md border border-slate-200 hover:bg-red-50 transition-colors"
+                    title="Delete employee"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop View: Table (md:) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-xs">
             <thead className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
               <tr>

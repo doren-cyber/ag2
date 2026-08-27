@@ -225,9 +225,68 @@ export const ShortageReportModule: React.FC = () => {
         </span>
       </div>
 
-      {/* Main Shortage Audit Table */}
+      {/* Main Shortage Audit View: Mobile Cards & Desktop Table */}
       <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
+        {/* Mobile Cards (< md) */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {summaries.map((s, idx) => (
+            <div key={idx} className="p-4 space-y-2.5 hover:bg-slate-50/60 transition-colors">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="font-bold text-slate-900 text-sm">
+                    {s.departmentName || s.departmentId}
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-medium">
+                    {s.shiftName || s.shiftId} &bull; Demand: {s.demandValue} {s.demandMetric}
+                  </div>
+                </div>
+
+                <span
+                  className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                    s.status === 'Critical'
+                      ? 'bg-red-50 text-red-800 border-red-200'
+                      : s.status === 'Shortage'
+                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                      : s.status === 'Surplus'
+                      ? 'bg-blue-50 text-blue-800 border-blue-200'
+                      : s.status === 'Adequate'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-slate-50 text-slate-800 border-slate-200'
+                  }`}
+                >
+                  <span>{s.status}</span>
+                </span>
+              </div>
+
+              {/* Numbers Grid */}
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-1.5 bg-slate-50 border border-slate-200 rounded-md">
+                  <span className="text-[10px] text-slate-500 block">Required</span>
+                  <span className="font-bold text-slate-900 text-xs">{s.requiredStaff}</span>
+                </div>
+                <div className="p-1.5 bg-slate-50 border border-slate-200 rounded-md">
+                  <span className="text-[10px] text-slate-500 block">Allocated</span>
+                  <span className="font-bold text-slate-900 text-xs">{s.allocatedStaff}</span>
+                </div>
+                <div className={`p-1.5 rounded-md border ${
+                  s.shortage > 0
+                    ? 'bg-red-50 border-red-200 text-red-800 font-bold'
+                    : s.surplus > 0
+                    ? 'bg-blue-50 border-blue-200 text-blue-800 font-bold'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-800 font-bold'
+                }`}>
+                  <span className="text-[10px] block">Gap</span>
+                  <span className="text-xs">
+                    {s.shortage > 0 ? `-${s.shortage}` : s.surplus > 0 ? `+${s.surplus}` : '0'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table (md:) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-xs">
             <thead className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
               <tr>

@@ -96,6 +96,7 @@ interface RosterContextType {
   };
   clearRoster: (date: string, deptId?: string, shiftId?: string) => void;
   removeAssignment: (assignmentId: string) => void;
+  updateAssignment: (assignmentId: string, updated: Partial<RosterAssignment>) => void;
   addManualAssignment: (assignment: Omit<RosterAssignment, 'id' | 'assignedAt'>) => void;
 
   // Summaries & Computations
@@ -513,6 +514,13 @@ export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     showNotification(`Staff assignment removed.`, 'info');
   };
 
+  const updateAssignment = (assignmentId: string, updated: Partial<RosterAssignment>) => {
+    setAssignments((prev) =>
+      prev.map((a) => (a.id === assignmentId ? { ...a, ...updated } : a))
+    );
+    showNotification(`Assignment updated successfully.`, 'success');
+  };
+
   const addManualAssignment = (assignment: Omit<RosterAssignment, 'id' | 'assignedAt'>) => {
     const newAssignment: RosterAssignment = {
       ...assignment,
@@ -691,6 +699,7 @@ export const RosterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         runFullHospitalRosterGeneration,
         clearRoster,
         removeAssignment,
+        updateAssignment,
         addManualAssignment,
         getDepartmentSummary,
         getAllDepartmentSummaries,
